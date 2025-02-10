@@ -95,3 +95,45 @@ func DeleteUserHandler(c *gin.Context) {
 
 	utilities.SetResponseJSON(c, http.StatusOK, data, constants.SuccessDeleteData, err)
 }
+
+func LoginHandler(c *gin.Context) {
+	var request models.Login
+	if err := c.ShouldBindJSON(&request); err != nil {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.ErrFailedAuthentication, err)
+		return
+	}
+
+	if request.Email == "" || request.Password == "" {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.ErrFailedAuthentication, nil)
+		return
+	}
+
+	data, err := userservice.Login(request)
+	if err != nil {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.ErrFailedAuthentication, err)
+		return
+	}
+
+	utilities.SetResponseJSON(c, http.StatusOK, data, constants.SuccessLogin, err)
+}
+
+func LogoutHandler(c *gin.Context) {
+	var request models.Login
+	if err := c.ShouldBindJSON(&request); err != nil {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.ErrLogout, err)
+		return
+	}
+
+	if request.Email == "" || request.Password == "" {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.ErrFailedAuthentication, nil)
+		return
+	}
+
+	data, err := userservice.Logout(request)
+	if err != nil {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.ErrFailedAuthentication, err)
+		return
+	}
+
+	utilities.SetResponseJSON(c, http.StatusOK, data, constants.SuccessLogout, err)
+}

@@ -6,6 +6,7 @@ import (
 	"test_case_putri/config"
 	taskhandler "test_case_putri/handlers/task_handler"
 	userhandler "test_case_putri/handlers/user_handler"
+	"test_case_putri/middlewares"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -31,8 +32,16 @@ func Routes() *gin.Engine {
 
 	v3noauth := r.Group("/api")
 
-	user := v3noauth.Group("/users")
+	auth := v3noauth.Group("/auth")
 	{
+		auth.POST("login", userhandler.LoginHandler)
+		auth.POST("logout", userhandler.LogoutHandler)
+	}
+
+	user := v3noauth.Group("/users").Use(middlewares.Authentication())
+	{
+		user.POST("login", userhandler.LoginHandler)
+		user.POST("logout", userhandler.LogoutHandler)
 		user.GET("", userhandler.GetUsersHandler)
 		user.GET("/:id", userhandler.GetUserByIdHandler)
 		user.POST("", userhandler.InsertUserHandler)
@@ -40,7 +49,7 @@ func Routes() *gin.Engine {
 		user.DELETE("/:id", userhandler.DeleteUserHandler)
 	}
 
-	task := v3noauth.Group("/tasks")
+	task := v3noauth.Group("/tasks").Use(middlewares.Authentication())
 	{
 		task.GET("", taskhandler.GetTasksHandler)
 		task.GET("/:id", taskhandler.GetTaskByIdHandler)
