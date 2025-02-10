@@ -1,18 +1,18 @@
-package userhandler
+package taskhandler
 
 import (
 	"net/http"
 	"strconv"
 	"test_case_putri/constants"
 	"test_case_putri/models"
-	userservice "test_case_putri/services/user_service"
+	taskservice "test_case_putri/services/task_service"
 	"test_case_putri/utilities"
 
 	"github.com/gin-gonic/gin"
 )
 
-func GetUsersHandler(c *gin.Context) {
-	data, err := userservice.GetUsersService()
+func GetTasksHandler(c *gin.Context) {
+	data, err := taskservice.GetTasksService()
 
 	if err != nil {
 		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedDisplayedData, err)
@@ -22,7 +22,7 @@ func GetUsersHandler(c *gin.Context) {
 	utilities.SetResponseJSON(c, http.StatusOK, data, constants.SuccessDisplayedData, nil)
 }
 
-func GetUserByIdHandler(c *gin.Context) {
+func GetTaskByIdHandler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -30,7 +30,7 @@ func GetUserByIdHandler(c *gin.Context) {
 		return
 	}
 
-	data, err := userservice.GetUserByIdService(id)
+	data, err := taskservice.GetTaskByIdService(id)
 
 	if err != nil {
 		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedDisplayedData, err)
@@ -40,14 +40,47 @@ func GetUserByIdHandler(c *gin.Context) {
 	utilities.SetResponseJSON(c, http.StatusOK, data, constants.SuccessDisplayedData, nil)
 }
 
-func InsertUserHandler(c *gin.Context) {
-	var request models.UserRequest
+func GetTaskByUserIdHandler(c *gin.Context) {
+	idParam := c.Param("user_id")
+	userId, err := strconv.Atoi(idParam)
+	if err != nil {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedDisplayedData, err)
+		return
+	}
+
+	data, err := taskservice.GetTaskByUserIdService(userId)
+
+	if err != nil {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedDisplayedData, err)
+		return
+	}
+
+	utilities.SetResponseJSON(c, http.StatusOK, data, constants.SuccessDisplayedData, nil)
+}
+
+func InsertTaskHandler(c *gin.Context) {
+	var request models.TaskRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedAddData, err)
 		return
 	}
 
-	data, err := userservice.InsertUserService(request)
+	if request.Status == "" {
+		request.Status = "pending"
+	}
+
+	validStatus := map[string]bool{
+		"pending":     true,
+		"in_progress": true,
+		"completed":   true,
+	}
+
+	if !validStatus[request.Status] {
+		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.InvalidStatusValue, nil)
+		return
+	}
+
+	data, err := taskservice.InsertTaskService(request)
 	if err != nil {
 		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedAddData, err)
 		return
@@ -56,7 +89,7 @@ func InsertUserHandler(c *gin.Context) {
 	utilities.SetResponseJSON(c, http.StatusOK, data, constants.SuccessAddData, err)
 }
 
-func UpdateUserHandler(c *gin.Context) {
+func UpdateTaskHandler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -64,13 +97,13 @@ func UpdateUserHandler(c *gin.Context) {
 		return
 	}
 
-	var request models.UserRequest
+	var request models.TaskRequest
 	if err := c.ShouldBindJSON(&request); err != nil {
 		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedUpdateData, err)
 		return
 	}
 
-	data, err := userservice.UpdateUserService(id, request)
+	data, err := taskservice.UpdateTaskService(id, request)
 	if err != nil {
 		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedUpdateData, err)
 		return
@@ -79,7 +112,7 @@ func UpdateUserHandler(c *gin.Context) {
 	utilities.SetResponseJSON(c, http.StatusOK, data, constants.SuccessUpdateData, err)
 }
 
-func DeleteUserHandler(c *gin.Context) {
+func DeleteTaskHandler(c *gin.Context) {
 	idParam := c.Param("id")
 	id, err := strconv.Atoi(idParam)
 	if err != nil {
@@ -87,7 +120,7 @@ func DeleteUserHandler(c *gin.Context) {
 		return
 	}
 
-	data, err := userservice.DeleteUserService(id)
+	data, err := taskservice.DeleteTaskService(id)
 	if err != nil {
 		utilities.SetResponseJSON(c, http.StatusBadRequest, nil, constants.FailedDeleteData, err)
 		return

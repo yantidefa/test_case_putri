@@ -7,7 +7,7 @@ import (
 	"time"
 )
 
-func GetAllUserRepository() ([]models.UserResponse, error) {
+func GetUsersRepository() ([]models.UserResponse, error) {
 	queryGet, err := config.DbConn.MySql.Prepare("SELECT id, name, email, created_at, updated_at FROM users")
 	if err != nil {
 		return nil, err
@@ -46,7 +46,7 @@ func GetUserByIdRepository(Id int) (*models.UserResponse, error) {
 	err = row.Scan(&user.Id, &user.Name, &user.Email, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if err == sql.ErrNoRows {
-			return nil, nil
+			return &models.UserResponse{}, err
 		}
 		return nil, err
 	}
@@ -55,7 +55,7 @@ func GetUserByIdRepository(Id int) (*models.UserResponse, error) {
 }
 
 func InsertUserRepository(request models.UserRequest) (int64, error) {
-	queryInsert, err := config.DbConn.MySql.Prepare("INSERT INTO users (name, email, created_at, updated_at) VALUES (?, ?, ?)")
+	queryInsert, err := config.DbConn.MySql.Prepare("INSERT INTO users (name, email, created_at) VALUES (?, ?, ?)")
 	if err != nil {
 		return 0, err
 	}
@@ -74,7 +74,7 @@ func InsertUserRepository(request models.UserRequest) (int64, error) {
 	return rowsAffected, nil
 }
 
-func UpdateUserRepository(Id int,request models.UserRequest) (int64, error) {
+func UpdateUserRepository(Id int, request models.UserRequest) (int64, error) {
 	result, err := config.DbConn.MySql.Exec(
 		"UPDATE users SET name = ?, email = ?, updated_at = NOW() WHERE id = ?",
 		request.Name, request.Email, Id,
@@ -107,4 +107,3 @@ func DeleteUserRepository(Id int) (int64, error) {
 
 	return rowsAffected, nil
 }
-

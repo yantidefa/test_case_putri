@@ -23,4 +23,6 @@ var (
 	FailedDownload      = "Failed Download"
 	FailedDisplayedData = "Failed Displayed The Data"
 	InvalidJsonRequest  = "Invalid Json Request"
+	InvalidStatusValue  = "Invalid Status Value"
+	ErrMultipleParam    = "One of the parameters must be filled in"
 )

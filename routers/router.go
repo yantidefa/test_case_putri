@@ -4,6 +4,7 @@ import (
 	"log"
 	"os"
 	"test_case_putri/config"
+	taskhandler "test_case_putri/handlers/task_handler"
 	userhandler "test_case_putri/handlers/user_handler"
 
 	"github.com/gin-contrib/cors"
@@ -32,13 +33,22 @@ func Routes() *gin.Engine {
 
 	user := v3noauth.Group("/users")
 	{
-		user.GET("", userhandler.GetAllUserHandler)
+		user.GET("", userhandler.GetUsersHandler)
 		user.GET("/:id", userhandler.GetUserByIdHandler)
 		user.POST("", userhandler.InsertUserHandler)
 		user.PUT("/:id", userhandler.UpdateUserHandler)
 		user.DELETE("/:id", userhandler.DeleteUserHandler)
 	}
-	
+
+	task := v3noauth.Group("/tasks")
+	{
+		task.GET("", taskhandler.GetTasksHandler)
+		task.GET("/:id", taskhandler.GetTaskByIdHandler)
+		task.GET("by-user/:user_id", taskhandler.GetTaskByUserIdHandler)
+		task.POST("", taskhandler.InsertTaskHandler)
+		task.PUT("/:id", taskhandler.UpdateTaskHandler)
+		task.DELETE("/:id", taskhandler.DeleteTaskHandler)
+	}
 
 	return r
 }
