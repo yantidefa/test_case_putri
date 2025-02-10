@@ -5,7 +5,7 @@
 ### Install goose
 
 ```bash
-cd migration
+cd migrations
 go install github.com/pressly/goose/v3/cmd/goose@latest
 ```
 ### Create file migration
